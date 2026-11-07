@@ -1,0 +1,24 @@
+---
+/**
+ * Emite el JSON-LD como un único @graph en el HTML del servidor (lo ven curl
+ * y Googlebot sin ejecutar JS). Nunca generar Schema en una isla de cliente.
+ * Fuera de producción valida el grafo y avisa en consola del servidor.
+ */
+import { buildGraph, serializeGraph, validateGraph } from '../../utils/seo/schema/graph.js';
+import { siteConfig } from '../../utils/config.js';
+
+interface Props {
+   page?: Record<string, any>;
+   seo: Record<string, any>;
+   nodes?: Record<string, any>[];
+}
+
+const { page, seo, nodes = [] } = Astro.props;
+const graph = buildGraph(page, seo, nodes);
+
+if (!siteConfig.isProduction) {
+   for (const p of validateGraph(graph)) console.warn(`[schema] ${p.severity} ${Astro.url.pathname}: ${p.message}`);
+}
+---
+
+<script type="application/ld+json" set:html={serializeGraph(graph)} />

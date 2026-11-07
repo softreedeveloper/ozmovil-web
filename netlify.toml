@@ -1,0 +1,46 @@
+# OzMobile — sitio estático (Astro output: 'static').
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  PUBLIC_SITE_ENV = "production"
+
+# Todo lo que no es producción: noindex + robots Disallow (ver src/utils/config.js).
+[context.deploy-preview.environment]
+  PUBLIC_SITE_ENV = "staging"
+
+[context.branch-deploy.environment]
+  PUBLIC_SITE_ENV = "staging"
+
+# Cabeceras de seguridad. frame-src permite el iframe de Google Maps de la
+# sección Ubicación; img-src data:/blob: lo necesita el QR (canvas → PNG).
+# 'unsafe-inline' en script-src: script de tema anti-parpadeo e hidratación de islas de Astro.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-src https://www.google.com https://maps.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
+
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/ozmobile.vcf"
+  [headers.values]
+    Content-Type = "text/vcard; charset=utf-8"
+    Content-Disposition = "attachment; filename=\"ozmobile.vcf\""
+
+# Dominio canónico con www (ajustar si el definitivo es sin www).
+[[redirects]]
+  from = "https://ozmobile.com.mx/*"
+  to = "https://www.ozmobile.com.mx/:splat"
+  status = 301
+  force = true

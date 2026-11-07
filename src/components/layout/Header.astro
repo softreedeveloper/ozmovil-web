@@ -1,0 +1,68 @@
+---
+/**
+ * Escritorio (lg+): logo, navegación, tema y WhatsApp.
+ * Móvil/tablet: barra superior tipo app (logo, llamar, tema); la navegación
+ * vive en la barra de pestañas inferior (MobileTabBar.astro).
+ */
+import Logo from '@components/ui/Logo.astro';
+import Icon from '@components/ui/Icon.astro';
+import ContactButton from '@components/ui/ContactButton.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import { navLinks } from '@constants/nav.js';
+import { siteConfig, telHref } from '@utils/config.js';
+---
+
+<header
+   data-header
+   class="sticky top-0 z-40 border-b border-line/70 bg-bg/80 pt-[env(safe-area-inset-top)] backdrop-blur-xl transition-shadow duration-300 supports-[backdrop-filter]:bg-bg/65"
+>
+   <!-- Progreso de lectura (--progress lo actualiza Layout.astro). -->
+   <div
+      data-progress
+      class="scroll-progress absolute inset-x-0 bottom-[-1px] h-0.5 bg-gradient-to-r from-accent via-accent-2 to-accent"
+      aria-hidden="true"
+   ></div>
+   <div class="container flex h-14 items-center justify-between gap-4 lg:h-16">
+      <a href="/" class="rounded-lg" aria-label={`${siteConfig.site.name}, ir al inicio`}>
+         <Logo size={42} class="lg:hidden" />
+         <Logo size={46} class="hidden lg:inline-flex" />
+      </a>
+
+      <nav aria-label="Principal" class="hidden lg:block">
+         <ul class="flex items-center gap-1 text-sm text-subtle">
+            {navLinks
+               .filter((l) => !l.mobileOnly)
+               .map((l) => (
+                  <li>
+                     <a href={l.href} class="rounded-full px-3 py-2 transition hover:bg-muted hover:text-fg">
+                        {l.label}
+                     </a>
+                  </li>
+               ))}
+         </ul>
+      </nav>
+
+      <div class="flex items-center gap-2">
+         <a
+            id="tel-header"
+            href={telHref()}
+            data-placement="header"
+            data-destination-type="phone"
+            class="grid size-10 place-items-center rounded-full border border-line bg-surface text-fg transition active:scale-90 lg:hidden"
+            aria-label={`Llamar al ${siteConfig.contact.phoneDisplay}`}
+         >
+            <Icon name="phone" size={18} />
+         </a>
+         <ThemeToggle id="theme-toggle-header" />
+         <ContactButton
+            id="wa-header"
+            placement="header"
+            message="default"
+            size="sm"
+            label="WhatsApp"
+            ariaLabel="Escríbenos por WhatsApp"
+            class="hidden lg:inline-flex"
+         />
+      </div>
+   </div>
+</header>

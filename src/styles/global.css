@@ -1,0 +1,252 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Tokens de color (canales RGB para poder usar /opacidad en Tailwind).
+ * Tema claro en :root, tema oscuro en .dark — la clase la pone el script
+ * inline del <head> (Layout.astro) antes de pintar, así no hay parpadeo.
+ * Contraste AA verificado para texto normal en ambos temas.
+ */
+@layer base {
+   /* Paleta del manual de marca: primario #0EA5FF · secundario #0B1F3B · neutro #E5E7EB · fondo #FFFFFF */
+   :root {
+      --brand: 14 165 255; /* #0EA5FF — logotipo, órbita, decoración */
+      --bg: 255 255 255; /* #FFFFFF */
+      --surface: 255 255 255;
+      --muted: 243 245 248;
+      --fg: 11 31 59; /* #0B1F3B */
+      --subtle: 71 85 105;
+      --line: 229 231 235; /* #E5E7EB */
+      --accent: 3 105 161; /* #0369A1: primario oscurecido para texto (AA sobre blanco) */
+      --accent-2: 11 31 59; /* #0B1F3B: destino de los degradados azul → marino */
+      --accent-fg: 255 255 255;
+      --accent-soft: 224 242 254;
+      --glow: 14 165 255;
+      --whatsapp: 37 211 102; /* #25D366 verde WhatsApp */
+      --whatsapp-text: 21 128 61; /* verde oscuro para texto (AA sobre blanco) */
+      color-scheme: light;
+   }
+
+   .dark {
+      --brand: 14 165 255;
+      --bg: 5 13 26; /* marino casi negro */
+      --surface: 11 24 46;
+      --muted: 16 33 61;
+      --fg: 241 245 249;
+      --subtle: 148 163 184;
+      --line: 27 45 74;
+      --accent: 14 165 255; /* #0EA5FF: AA sobre el fondo oscuro */
+      --accent-2: 3 105 161;
+      --accent-fg: 5 13 26;
+      --accent-soft: 12 45 84;
+      --glow: 14 165 255;
+      --whatsapp: 37 211 102;
+      --whatsapp-text: 37 211 102;
+      color-scheme: dark;
+   }
+
+   html {
+      @apply scroll-smooth antialiased;
+      -webkit-tap-highlight-color: transparent;
+      scroll-padding-top: 5rem;
+   }
+
+   body {
+      @apply bg-bg font-sans text-fg;
+   }
+
+   h1,
+   h2,
+   h3,
+   .btn {
+      @apply font-display;
+      text-rendering: optimizeLegibility;
+   }
+
+   ::selection {
+      background: rgb(var(--accent) / 0.25);
+   }
+
+   :focus-visible {
+      outline: 2px solid rgb(var(--accent));
+      outline-offset: 3px;
+      border-radius: 6px;
+   }
+
+   /* Cambio de tema suave, solo en color (nunca en layout). */
+   html.theme-transition,
+   html.theme-transition * {
+      transition:
+         background-color 0.25s ease,
+         border-color 0.25s ease,
+         color 0.25s ease !important;
+   }
+
+   @media (prefers-reduced-motion: reduce) {
+      html {
+         scroll-behavior: auto;
+      }
+      *,
+      *::before,
+      *::after {
+         animation-duration: 0.01ms !important;
+         animation-iteration-count: 1 !important;
+         transition-duration: 0.01ms !important;
+      }
+   }
+}
+
+@layer components {
+   .btn {
+      @apply relative isolate inline-flex min-h-12 items-center justify-center gap-2 overflow-hidden rounded-full px-6 text-[0.95rem] font-semibold transition duration-300 active:scale-[0.98];
+   }
+   /* Destello que cruza el botón al pasar el cursor. */
+   .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.35) 50%, transparent 70%);
+      transform: translateX(-120%);
+      transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+   }
+   .btn:hover::after {
+      transform: translateX(120%);
+   }
+   /*
+    * Botones de WhatsApp: verde oficial #25D366 con texto verde muy oscuro
+    * (#052E16, contraste ~9:1). Blanco sobre #25D366 no llega a AA (≈2:1).
+    */
+   .btn-whatsapp {
+      @apply btn text-[#052e16] hover:-translate-y-0.5;
+      background-image: linear-gradient(135deg, #3ee27f 0%, #25d366 45%, #1fb855 100%);
+      box-shadow: 0 10px 30px -10px rgb(37 211 102 / 0.65);
+   }
+   .btn-whatsapp:hover {
+      box-shadow: 0 16px 40px -12px rgb(37 211 102 / 0.8);
+   }
+   .btn-primary {
+      @apply btn bg-fg text-bg hover:opacity-90;
+   }
+   .btn-ghost {
+      @apply btn border border-line bg-surface text-fg hover:border-fg/30;
+   }
+   .card {
+      @apply rounded-3xl border border-line bg-surface shadow-card;
+   }
+   /* Tarjeta con foco de luz que sigue al cursor (--mx/--my los pone Layout.astro). */
+   .spotlight {
+      @apply relative overflow-hidden;
+   }
+   .spotlight::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      background: radial-gradient(
+         420px circle at var(--mx, 50%) var(--my, 50%),
+         rgb(var(--glow) / 0.14),
+         transparent 45%
+      );
+   }
+   .spotlight:hover::before {
+      opacity: 1;
+   }
+   /* Texto con degradado azul → color de texto (negro en claro, blanco en oscuro). */
+   .text-gradient {
+      background-image: linear-gradient(
+         100deg,
+         rgb(var(--fg)) 0%,
+         rgb(var(--fg)) 35%,
+         rgb(var(--accent)) 70%,
+         rgb(var(--accent-2)) 100%
+      );
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: gradientShift 8s ease-in-out infinite alternate;
+   }
+   .eyebrow {
+      @apply inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-accent;
+   }
+   .section {
+      @apply py-20 sm:py-section;
+   }
+   .h2 {
+      @apply text-balance text-3xl font-semibold tracking-tight sm:text-4xl;
+   }
+   .lead {
+      @apply text-pretty text-base leading-relaxed text-subtle sm:text-lg;
+   }
+}
+
+@keyframes gradientShift {
+   from {
+      background-position: 0% 50%;
+   }
+   to {
+      background-position: 100% 50%;
+   }
+}
+
+/* Barra de progreso de lectura (ancho controlado por --progress). */
+.scroll-progress {
+   transform: scaleX(var(--progress, 0));
+   transform-origin: 0 50%;
+}
+
+/* Header al hacer scroll. */
+header.is-scrolled {
+   box-shadow: 0 8px 30px -18px rgb(0 0 0 / 0.35);
+}
+
+/* Carrusel infinito de marcas: se pausa al pasar el cursor o con el foco. */
+.marquee {
+   mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+}
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track {
+   animation-play-state: paused;
+}
+
+/* Revelado al hacer scroll (lo activa un IntersectionObserver en Layout.astro). */
+.js [data-reveal] {
+   opacity: 0;
+   transform: translateY(16px);
+   transition:
+      opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.js [data-reveal].is-visible {
+   opacity: 1;
+   transform: none;
+}
+.js [data-reveal='scale']:not(.is-visible) {
+   transform: scale(0.94);
+}
+/* Línea del proceso que se dibuja al entrar en pantalla. */
+.js [data-line] {
+   transform: scaleX(0);
+   transform-origin: 0 50%;
+   transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+}
+.js [data-line].is-visible {
+   transform: scaleX(1);
+}
+@media (prefers-reduced-motion: reduce) {
+   .js [data-line] {
+      transform: none;
+   }
+   .marquee-track,
+   .text-gradient {
+      animation: none !important;
+   }
+   .js [data-reveal] {
+      opacity: 1;
+      transform: none;
+   }
+}

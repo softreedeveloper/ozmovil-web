@@ -1,0 +1,45 @@
+---
+import SectionHeading from '@components/ui/SectionHeading.astro';
+import ContactButton from '@components/ui/ContactButton.astro';
+import { steps } from '@constants/content.js';
+---
+
+<section id="proceso" class="section" aria-labelledby="proceso-title">
+   <div class="container">
+      <SectionHeading
+         id="proceso-title"
+         eyebrow="Cómo funciona"
+         title="De la falla a tu equipo funcionando, en 4 pasos"
+         lead="Sin vueltas: primero sabes qué tiene y cuánto cuesta, luego decides."
+      />
+
+      <div class="relative mt-12">
+         <!-- Línea que conecta los pasos: se dibuja al entrar en pantalla (data-line). -->
+         <div
+            data-line
+            class="absolute inset-x-6 top-[2.75rem] hidden h-0.5 rounded-full bg-gradient-to-r from-accent via-accent-2 to-accent/0 lg:block"
+            aria-hidden="true"
+         ></div>
+         <ol class="relative grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {steps.map((s, i) => (
+               <li
+                  class="spotlight group relative rounded-3xl border border-line bg-bg p-6 transition duration-300 hover:-translate-y-1 hover:border-accent/40"
+                  data-spotlight
+                  data-reveal
+                  style={`transition-delay:${i * 90}ms`}
+               >
+                  <span class="grid size-10 place-items-center rounded-full bg-gradient-to-br from-accent to-accent-2 font-mono text-sm font-semibold text-white shadow-glow transition duration-500 group-hover:scale-110">
+                     {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <h3 class="mt-4 text-lg font-semibold tracking-tight">{s.title}</h3>
+                  <p class="mt-2 text-sm leading-relaxed text-subtle">{s.description}</p>
+               </li>
+            ))}
+         </ol>
+      </div>
+
+      <div class="mt-10" data-reveal>
+         <ContactButton id="wa-proceso" placement="contenido" message="quote" label="Empezar mi diagnóstico" />
+      </div>
+   </div>
+</section>

@@ -1,0 +1,68 @@
+---
+/**
+ * Marcas en dos carriles infinitos (direcciones opuestas). Cada carril se
+ * duplica para que el bucle no tenga corte: la copia va con aria-hidden,
+ * sin ids ni foco, para no repetir enlaces a lectores de pantalla. Lleva
+ * aria-label igual que el original para que la auditoría de Astro no la marque.
+ * Con prefers-reduced-motion el carrusel se detiene (global.css).
+ */
+import BrandLogo from '@components/ui/BrandLogo.astro';
+import { brands } from '@constants/content.js';
+import { waLink } from '@utils/config.js';
+import { brandIcon } from '@utils/brand-icons.js';
+
+const half = Math.ceil(brands.length / 2);
+const rows = [
+   { items: brands.slice(0, half), anim: 'animate-marquee' },
+   { items: brands.slice(half), anim: 'animate-marquee-reverse' },
+];
+const slug = (s: string) => s.toLowerCase().replace(/\s+/g, '-');
+---
+
+<section
+   id="marcas"
+   class="relative overflow-hidden border-y border-line bg-surface py-14 sm:py-16"
+   aria-labelledby="marcas-title"
+>
+   <div class="container text-center" data-reveal>
+      <p class="eyebrow justify-center">Marcas</p>
+      <h2 id="marcas-title" class="mt-3 text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
+         Reparamos <span class="text-gradient">todas las marcas</span>
+      </h2>
+      <p class="mx-auto mt-3 max-w-lg text-sm text-subtle sm:text-base">Toca tu marca y cotiza por WhatsApp.</p>
+   </div>
+
+   <div class="mt-10 grid gap-4">
+      {rows.map((row) => (
+         <div class="marquee overflow-hidden py-2">
+            <ul class={`marquee-track flex w-max ${row.anim}`}>
+               {[0, 1].map((copy) =>
+                  row.items.map((b) => (
+                     <li class="pr-4" aria-hidden={copy ? 'true' : undefined}>
+                        <a
+                           id={copy ? undefined : `wa-marca-${slug(b.name)}`}
+                           href={waLink('brand', { servicio: b.model })}
+                           target="_blank"
+                           rel="noopener"
+                           tabindex={copy ? -1 : undefined}
+                           data-placement="contenido"
+                           data-destination-type="whatsapp"
+                           aria-label={`Cotizar reparación de ${b.model} por WhatsApp`}
+                           class="group flex h-20 w-40 items-center justify-center gap-3 rounded-2xl border border-line bg-bg px-5 text-subtle transition duration-300 hover:-translate-y-1 hover:border-accent/50 hover:text-fg hover:shadow-glow sm:h-24 sm:w-48"
+                        >
+                           <BrandLogo
+                              icon={b.icon}
+                              label={b.name}
+                              size={30}
+                              class="transition duration-300 group-hover:scale-110 group-hover:text-accent"
+                           />
+                           {!brandIcon(b.icon)?.wordmark && <span class="text-sm font-semibold">{b.name}</span>}
+                        </a>
+                     </li>
+                  )),
+               )}
+            </ul>
+         </div>
+      ))}
+   </div>
+</section>

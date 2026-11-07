@@ -1,0 +1,148 @@
+---
+import ContactButton from '@components/ui/ContactButton.astro';
+import Icon from '@components/ui/Icon.astro';
+import BrandLogo from '@components/ui/BrandLogo.astro';
+import Logo from '@components/ui/Logo.astro';
+import { getPage } from '@utils/seo/registry.js';
+import { siteConfig } from '@utils/config.js';
+import { brands } from '@constants/content.js';
+
+// El H1 sale del registro SEO: el validador exige que coincidan.
+const { h1 } = getPage('/');
+const highlights = ['Diagnóstico antes de reparar', 'Cotización por WhatsApp', 'Todas las marcas'];
+const heroBrands = brands.slice(0, 6);
+---
+
+<section id="inicio" class="relative overflow-hidden" aria-labelledby="hero-title" data-section-name="hero">
+   <!-- Fondo: retícula + manchas de luz azul en movimiento. Decorativo. -->
+   <div class="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
+      <div class="absolute inset-0 opacity-60 [background-image:linear-gradient(rgb(var(--line))_1px,transparent_1px),linear-gradient(90deg,rgb(var(--line))_1px,transparent_1px)] [background-size:56px_56px] [mask-image:radial-gradient(ellipse_at_top,black_25%,transparent_72%)]"></div>
+      <div class="absolute -top-48 left-[10%] size-[30rem] animate-blob rounded-full bg-accent/25 blur-3xl"></div>
+      <div class="absolute -top-24 right-[5%] size-[26rem] animate-blob rounded-full bg-accent-2/20 blur-3xl [animation-delay:-6s]"></div>
+      <div class="absolute bottom-0 left-1/2 size-[22rem] -translate-x-1/2 animate-blob rounded-full bg-glow/10 blur-3xl [animation-delay:-12s]"></div>
+      <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-bg"></div>
+   </div>
+
+   <div class="container grid items-center gap-14 pb-20 pt-14 sm:pt-20 lg:grid-cols-[1.15fr_0.85fr] lg:pb-28 lg:pt-24">
+      <div>
+         <p class="inline-flex animate-fadeUp items-center gap-2 rounded-full border border-line bg-surface/80 px-3 py-1.5 text-xs font-medium text-subtle backdrop-blur">
+            <span class="relative flex size-2">
+               <span class="absolute inline-flex size-full animate-ping rounded-full bg-whatsapp opacity-60"></span>
+               <span class="relative inline-flex size-2 rounded-full bg-whatsapp"></span>
+            </span>
+            Respondemos por WhatsApp
+         </p>
+
+         <h1
+            id="hero-title"
+            class="mt-6 animate-fadeUp text-balance pb-1 text-[2.6rem] font-semibold leading-[1.05] tracking-tight [animation-delay:80ms] sm:text-6xl lg:text-7xl"
+         >
+            <span class="text-gradient">{h1}</span>
+         </h1>
+         <p class="lead mt-6 max-w-xl animate-fadeUp [animation-delay:160ms]">
+            Pantallas, baterías, centros de carga, cámaras y más. Cuéntanos qué le pasa a tu equipo y te decimos cuánto
+            cuesta antes de repararlo.
+         </p>
+
+         <div class="mt-9 flex animate-fadeUp flex-col gap-3 [animation-delay:240ms] sm:flex-row">
+            <ContactButton id="wa-hero" placement="hero" message="hero" size="lg" label="Cotizar por WhatsApp" />
+            <ContactButton
+               id="tel-hero"
+               type="tel"
+               placement="hero"
+               size="lg"
+               label={`Llamar ${siteConfig.contact.phoneDisplay}`}
+            />
+         </div>
+
+         <ul class="mt-9 flex animate-fadeUp flex-wrap gap-x-6 gap-y-3 text-sm text-subtle [animation-delay:320ms]">
+            {highlights.map((h) => (
+               <li class="inline-flex items-center gap-2">
+                  <span class="grid size-5 place-items-center rounded-full bg-accent-soft text-accent">
+                     <Icon name="check" size={12} />
+                  </span>
+                  {h}
+               </li>
+            ))}
+         </ul>
+
+         <div class="mt-10 animate-fadeUp border-t border-line pt-6 [animation-delay:400ms]">
+            <p class="text-xs font-medium uppercase tracking-[0.16em] text-subtle">Reparamos</p>
+            <ul class="mt-4 flex flex-wrap items-center gap-x-6 gap-y-4 text-subtle">
+               {heroBrands.map((b) => (
+                  <li>
+                     <BrandLogo
+                        icon={b.icon}
+                        label={b.name}
+                        size={24}
+                        class="opacity-70 transition hover:text-accent hover:opacity-100"
+                     />
+                  </li>
+               ))}
+               <li>
+                  <a href="#marcas" class="text-sm font-medium text-accent hover:underline">
+                     y más
+                  </a>
+               </li>
+            </ul>
+         </div>
+      </div>
+
+      <!-- Ilustración: equipo en diagnóstico + tarjetas flotantes. Se inclina con el cursor (data-tilt). -->
+      <div
+         class="relative mx-auto w-full max-w-[20rem] animate-fadeUp [animation-delay:200ms] [perspective:1200px] lg:max-w-[22rem]"
+         aria-hidden="true"
+      >
+         <div class="absolute left-1/2 top-1/2 aspect-square w-[130%] -translate-x-1/2 -translate-y-1/2 animate-spinSlow rounded-full border border-dashed border-accent/25"></div>
+         <div class="absolute left-1/2 top-1/2 aspect-square w-[105%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/10 blur-2xl"></div>
+
+         <div data-tilt class="relative transition-transform duration-300 ease-out [transform-style:preserve-3d]">
+            <div class="relative mx-auto aspect-[9/18.5] w-[78%] rounded-[2.6rem] border border-line bg-surface p-2.5 shadow-glow">
+               <div class="relative flex h-full flex-col overflow-hidden rounded-[2.1rem] bg-gradient-to-b from-muted to-accent-soft/60">
+                  <div class="mx-auto mt-2.5 h-5 w-20 rounded-full bg-fg/90"></div>
+                  <!-- Línea de escaneo -->
+                  <div class="absolute inset-x-0 top-10 h-16 animate-scan bg-gradient-to-b from-transparent via-brand/25 to-transparent"></div>
+
+                  <div class="flex flex-1 flex-col items-center justify-center gap-3 px-5">
+                     <Logo variant="app" size={68} class="rounded-[22%] shadow-glow" />
+                     <span class="text-sm font-semibold">Diagnosticando…</span>
+                     <span class="h-1.5 w-full overflow-hidden rounded-full bg-fg/10">
+                        <span class="block h-full animate-progress rounded-full bg-gradient-to-r from-brand to-accent"></span>
+                     </span>
+                  </div>
+
+                  <div class="grid gap-2 p-4">
+                     {['Pantalla', 'Batería', 'Centro de carga'].map((t, i) => (
+                        <div class="flex items-center justify-between rounded-xl bg-surface/80 px-3 py-2 text-xs">
+                           <span>{t}</span>
+                           <span class:list={['font-semibold', i === 1 ? 'text-accent' : 'text-subtle']}>
+                              {i === 1 ? 'Revisar' : 'OK'}
+                           </span>
+                        </div>
+                     ))}
+                  </div>
+               </div>
+            </div>
+
+            <div class="card absolute -left-3 top-[16%] flex animate-float items-center gap-3 px-4 py-3 sm:-left-10">
+               <span class="grid size-9 place-items-center rounded-xl bg-accent-soft text-accent">
+                  <Icon name="battery" size={18} />
+               </span>
+               <span class="text-left">
+                  <span class="block text-xs text-subtle">Batería</span>
+                  <span class="block text-sm font-semibold">Diagnóstico listo</span>
+               </span>
+            </div>
+            <div class="card absolute -right-2 bottom-[14%] flex animate-float items-center gap-3 px-4 py-3 [animation-delay:-3s] sm:-right-8">
+               <span class="grid size-9 place-items-center rounded-xl bg-whatsapp text-white">
+                  <Icon name="whatsapp" size={18} />
+               </span>
+               <span class="text-left">
+                  <span class="block text-xs text-subtle">Tu equipo</span>
+                  <span class="block text-sm font-semibold">Listo para entregar</span>
+               </span>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>

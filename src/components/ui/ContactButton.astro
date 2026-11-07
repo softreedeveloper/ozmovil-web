@@ -1,0 +1,65 @@
+---
+/**
+ * Botón de contacto único para todo el sitio (WhatsApp o llamada). El número
+ * y los mensajes salen de site-config.js vía waLink()/telHref().
+ *
+ * Convención de tracking (skill tracking-conversiones): cada instancia lleva
+ * un `id` único y `data-placement` de un catálogo cerrado
+ * (header | hero | contenido | footer | sticky). Con eso, el día que se
+ * conecte GA4 basta un listener delegado, sin tocar el markup.
+ */
+import Icon from './Icon.astro';
+import { waLink, telHref, siteConfig } from '@utils/config.js';
+
+interface Props {
+   id: string;
+   type?: 'whatsapp' | 'tel';
+   placement: 'header' | 'hero' | 'contenido' | 'footer' | 'sticky';
+   /** Clave de whatsappMessages o texto libre. */
+   message?: string;
+   vars?: Record<string, string>;
+   variant?: 'whatsapp' | 'primary' | 'ghost' | 'link';
+   label?: string;
+   ariaLabel?: string;
+   class?: string;
+   size?: 'sm' | 'md' | 'lg';
+}
+
+const {
+   id,
+   type = 'whatsapp',
+   placement,
+   message = 'default',
+   vars = {},
+   variant = type === 'whatsapp' ? 'whatsapp' : 'ghost',
+   label = type === 'whatsapp' ? 'Escríbenos por WhatsApp' : `Llamar al ${siteConfig.contact.phoneDisplay}`,
+   ariaLabel,
+   class: className = '',
+   size = 'md',
+} = Astro.props;
+
+const isWa = type === 'whatsapp';
+const href = isWa ? waLink(message, vars) : telHref();
+const sizeClass = { sm: '!min-h-10 !px-4 text-sm', md: '', lg: 'sm:!min-h-14 sm:!px-8 sm:text-base' }[size];
+const variantClass = {
+   whatsapp: 'btn-whatsapp',
+   primary: 'btn-primary',
+   ghost: 'btn-ghost',
+   link: 'inline-flex items-center gap-2 font-semibold text-accent underline-offset-4 hover:underline',
+}[variant];
+---
+
+<a
+   id={id}
+   href={href}
+   class:list={[variantClass, variant !== 'link' && sizeClass, className]}
+   data-placement={placement}
+   data-destination-type={isWa ? 'whatsapp' : 'phone'}
+   aria-label={ariaLabel}
+   {...(isWa ? { target: '_blank', rel: 'noopener' } : {})}
+>
+   <Icon name={isWa ? 'whatsapp' : 'phone'} size={size === 'sm' ? 16 : 18} />
+   <span>
+      <slot>{label}</slot>
+   </span>
+</a>

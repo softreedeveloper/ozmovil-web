@@ -1,0 +1,99 @@
+---
+import Logo from '@components/ui/Logo.astro';
+import Icon from '@components/ui/Icon.astro';
+import ContactButton from '@components/ui/ContactButton.astro';
+import { navLinks } from '@constants/nav.js';
+import { siteConfig, socialLinks, addressLine, mailHref, telHref } from '@utils/config.js';
+
+const year = new Date().getFullYear();
+const socials = socialLinks();
+const address = addressLine();
+const { contact, site } = siteConfig;
+---
+
+<footer class="border-t border-line bg-surface">
+   <div class="container grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="sm:col-span-2 lg:col-span-1">
+         <a href="/" aria-label={`${site.name}, ir al inicio`} class="rounded-lg">
+            <Logo size={46} tagline on="surface" />
+         </a>
+         <p class="mt-4 max-w-xs text-sm leading-relaxed text-subtle">{site.description}</p>
+      </div>
+
+      <nav aria-label="Pie de página">
+         <p class="text-sm font-semibold">Secciones</p>
+         <ul class="mt-4 grid gap-2.5 text-sm text-subtle">
+            {navLinks.map((l) => (
+               <li>
+                  <a href={l.href} class="hover:text-fg">
+                     {l.label}
+                  </a>
+               </li>
+            ))}
+         </ul>
+      </nav>
+
+      <div>
+         <p class="text-sm font-semibold">Contacto</p>
+         <ul class="mt-4 grid gap-3 text-sm text-subtle">
+            <li>
+               <a
+                  href={telHref()}
+                  id="tel-footer"
+                  data-placement="footer"
+                  data-destination-type="phone"
+                  class="inline-flex items-center gap-2 hover:text-fg"
+               >
+                  <Icon name="phone" size={16} />
+                  {contact.phoneDisplay}
+               </a>
+            </li>
+            {contact.email && (
+               <li>
+                  <a href={mailHref()} class="inline-flex items-center gap-2 hover:text-fg">
+                     <Icon name="mail" size={16} />
+                     {contact.email}
+                  </a>
+               </li>
+            )}
+            {address && (
+               <li class="inline-flex items-start gap-2">
+                  <Icon name="pin" size={16} class="mt-0.5" />
+                  {address}
+               </li>
+            )}
+         </ul>
+         {socials.length > 0 && (
+            <ul class="mt-5 flex gap-2" aria-label="Redes sociales">
+               {socials.map((s) => (
+                  <li>
+                     <a
+                        href={s.url}
+                        target="_blank"
+                        rel="noopener"
+                        class="grid size-10 place-items-center rounded-full border border-line hover:border-fg/30"
+                        aria-label={s.label}
+                     >
+                        <Icon name={s.key} size={18} />
+                     </a>
+                  </li>
+               ))}
+            </ul>
+         )}
+      </div>
+
+      <div>
+         <p class="text-sm font-semibold">¿Tu equipo falló?</p>
+         <p class="mt-4 text-sm text-subtle">Mándanos el modelo y la falla, te respondemos por WhatsApp.</p>
+         <ContactButton id="wa-footer" placement="footer" message="quote" label="Cotizar ahora" class="mt-5" />
+      </div>
+   </div>
+   <div class="border-t border-line">
+      <div class="container flex flex-col gap-2 py-6 text-xs text-subtle sm:flex-row sm:justify-between">
+         <p>
+            © {year} {site.legalName || site.name}. Todos los derechos reservados.
+         </p>
+         <p>Las marcas mencionadas pertenecen a sus respectivos dueños.</p>
+      </div>
+   </div>
+</footer>

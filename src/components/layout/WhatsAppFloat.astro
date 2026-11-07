@@ -1,0 +1,24 @@
+---
+import Icon from '@components/ui/Icon.astro';
+import { waLink } from '@utils/config.js';
+---
+
+<a
+   id="wa-flotante"
+   href={waLink('default')}
+   target="_blank"
+   rel="noopener"
+   data-placement="sticky"
+   data-destination-type="whatsapp"
+   aria-label="Escríbenos por WhatsApp"
+   class="group fixed bottom-6 right-6 z-50 hidden size-14 place-items-center rounded-full bg-whatsapp text-white shadow-[0_12px_32px_-8px_rgb(37_211_102/0.7)] lg:grid transition duration-300 hover:-translate-y-1 hover:scale-105 active:scale-95"
+>
+   <span class="absolute inset-0 -z-10 animate-pulseRing rounded-full bg-whatsapp" aria-hidden="true"></span>
+   <Icon name="whatsapp" size={28} />
+   <span
+      class="pointer-events-none absolute right-full mr-3 hidden translate-x-2 whitespace-nowrap rounded-full bg-fg px-3 py-1.5 text-sm font-medium text-bg opacity-0 transition duration-300 group-hover:translate-x-0 group-hover:opacity-100 sm:block"
+      aria-hidden="true"
+   >
+      ¿Te ayudamos?
+   </span>
+</a>

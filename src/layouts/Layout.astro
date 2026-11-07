@@ -1,0 +1,175 @@
+---
+/**
+ * Layout único. El <head> SEO completo lo emite SEOHead (title, description,
+ * canonical, OG, JSON-LD); aquí no se escribe ninguna de esas etiquetas.
+ */
+import '@fontsource-variable/inter';
+import '@fontsource-variable/montserrat';
+import '@styles/global.css';
+import SEOHead from '@components/seo/SEOHead.astro';
+import Header from '@components/layout/Header.astro';
+import Footer from '@components/layout/Footer.astro';
+import WhatsAppFloat from '@components/layout/WhatsAppFloat.astro';
+import MobileTabBar from '@components/layout/MobileTabBar.astro';
+import { siteConfig } from '@utils/config.js';
+
+interface Props {
+   title?: string;
+   description?: string;
+   image?: string;
+   noIndex?: boolean;
+   schema?: object | object[];
+}
+
+const { theme } = siteConfig;
+---
+
+<!doctype html>
+<html lang={siteConfig.site.language}>
+   <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+      <!--
+         Tema antes de pintar (evita el parpadeo claro→oscuro): elección guardada
+         o, si no hay, la preferencia del sistema. También marca <html class="js">
+         para activar las animaciones solo cuando hay JavaScript.
+      -->
+      <script is:inline define:vars={{ light: theme.light, dark: theme.dark }}>
+         var d = document.documentElement;
+         d.classList.add('js');
+         var saved = null;
+         try {
+            saved = localStorage.getItem('theme');
+         } catch (e) {}
+         var isDark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+         d.classList.toggle('dark', isDark);
+         window.__themeColors = { light: light, dark: dark };
+      </script>
+      <SEOHead {...Astro.props} />
+      <meta name="format-detection" content="telephone=no" />
+   </head>
+   <body class="min-h-dvh">
+      <a
+         href="#contenido"
+         class="sr-only z-[60] rounded-full bg-fg px-4 py-2 text-bg focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+      >
+         Saltar al contenido
+      </a>
+      <Header />
+      <main id="contenido">
+         <slot />
+      </main>
+      <Footer />
+      <WhatsAppFloat />
+      <!-- Debe ser el ÚLTIMO elemento visible del body (sticky bottom-0, ver el componente). -->
+      <MobileTabBar />
+
+      <script>
+         // --- Tema -------------------------------------------------------------
+         const root = document.documentElement;
+         const colors = (window as any).__themeColors ?? { light: '#fafafa', dark: '#0a0a0b' };
+         const mq = matchMedia('(prefers-color-scheme: dark)');
+
+         function apply(isDark: boolean, animate = false) {
+            if (animate) {
+               root.classList.add('theme-transition');
+               setTimeout(() => root.classList.remove('theme-transition'), 300);
+            }
+            root.classList.toggle('dark', isDark);
+            document.querySelectorAll('meta[name="theme-color"]').forEach((m) => {
+               m.setAttribute('content', isDark ? colors.dark : colors.light);
+            });
+            document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((b) => {
+               b.setAttribute('aria-pressed', String(isDark));
+               b.setAttribute('aria-label', isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro');
+            });
+         }
+
+         let saved: string | null = null;
+         try {
+            saved = localStorage.getItem('theme');
+         } catch {}
+         if (saved) apply(saved === 'dark');
+         else apply(mq.matches);
+
+         document.querySelectorAll('[data-theme-toggle]').forEach((btn) =>
+            btn.addEventListener('click', () => {
+               const next = !root.classList.contains('dark');
+               apply(next, true);
+               try {
+                  localStorage.setItem('theme', next ? 'dark' : 'light');
+               } catch {}
+            }),
+         );
+
+         // Sin elección manual, seguir los cambios del sistema.
+         mq.addEventListener('change', (e) => {
+            let manual = null;
+            try {
+               manual = localStorage.getItem('theme');
+            } catch {}
+            if (!manual) apply(e.matches, true);
+         });
+
+         // --- Revelado al hacer scroll ------------------------------------------
+         const io = new IntersectionObserver(
+            (entries) =>
+               entries.forEach((en) => {
+                  if (en.isIntersecting) {
+                     en.target.classList.add('is-visible');
+                     io.unobserve(en.target);
+                  }
+               }),
+            { rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
+         );
+         document.querySelectorAll('[data-reveal], [data-line]').forEach((el) => io.observe(el));
+
+         // --- Header: sombra al desplazarse + barra de progreso de lectura -------
+         const header = document.querySelector<HTMLElement>('[data-header]');
+         const bar = document.querySelector<HTMLElement>('[data-progress]');
+         let ticking = false;
+         const onScroll = () => {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(() => {
+               const max = document.documentElement.scrollHeight - innerHeight;
+               bar?.style.setProperty('--progress', String(max > 0 ? Math.min(scrollY / max, 1) : 0));
+               header?.classList.toggle('is-scrolled', scrollY > 8);
+               ticking = false;
+            });
+         };
+         addEventListener('scroll', onScroll, { passive: true });
+         onScroll();
+
+         // Efectos que siguen al cursor: solo con ratón y sin "reducir movimiento".
+         const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
+         const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+         if (finePointer && !reduced) {
+            // --- Foco de luz en tarjetas [data-spotlight] (delegado) --------------
+            document.addEventListener(
+               'pointermove',
+               (e) => {
+                  const card = (e.target as Element).closest<HTMLElement>('[data-spotlight]');
+                  if (!card) return;
+                  const r = card.getBoundingClientRect();
+                  card.style.setProperty('--mx', `${e.clientX - r.left}px`);
+                  card.style.setProperty('--my', `${e.clientY - r.top}px`);
+               },
+               { passive: true },
+            );
+
+            // --- Inclinación 3D [data-tilt] -----------------------------------------
+            document.querySelectorAll<HTMLElement>('[data-tilt]').forEach((el) => {
+               const zone = el.parentElement ?? el;
+               zone.addEventListener('pointermove', (e) => {
+                  const r = zone.getBoundingClientRect();
+                  const x = (e.clientX - r.left) / r.width - 0.5;
+                  const y = (e.clientY - r.top) / r.height - 0.5;
+                  el.style.transform = `rotateY(${x * 14}deg) rotateX(${-y * 14}deg)`;
+               });
+               zone.addEventListener('pointerleave', () => (el.style.transform = ''));
+            });
+         }
+      </script>
+   </body>
+</html>

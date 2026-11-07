@@ -1,0 +1,53 @@
+---
+/** Las preguntas salen de la misma constante que alimenta el FAQPage del JSON-LD. */
+import SectionHeading from '@components/ui/SectionHeading.astro';
+import ContactButton from '@components/ui/ContactButton.astro';
+import { faqs } from '@constants/content.js';
+---
+
+<section id="preguntas" class="section" aria-labelledby="preguntas-title">
+   <div class="container grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
+      <div>
+         <SectionHeading id="preguntas-title" eyebrow="Preguntas frecuentes" title="Resolvemos tus dudas" />
+         <p class="lead mt-4" data-reveal>
+            ¿No encuentras tu respuesta? Pregúntanos directo.
+         </p>
+         <div class="mt-6" data-reveal>
+            <ContactButton
+               id="wa-preguntas"
+               placement="contenido"
+               message="default"
+               variant="ghost"
+               label="Preguntar por WhatsApp"
+            />
+         </div>
+      </div>
+
+      <div class="divide-y divide-line border-y border-line">
+         {faqs.map((f) => (
+            <details class="group py-1" data-reveal>
+               <summary class="flex cursor-pointer list-none items-center justify-between gap-6 py-5 text-left font-medium [&::-webkit-details-marker]:hidden">
+                  <h3 class="text-base sm:text-lg">{f.question}</h3>
+                  <span
+                     class="grid size-8 shrink-0 place-items-center rounded-full border border-line text-subtle transition group-open:rotate-45 group-open:border-accent group-open:text-accent"
+                     aria-hidden="true"
+                  >
+                     <svg
+                        viewBox="0 0 24 24"
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                     >
+                        <path d="M12 5v14M5 12h14" />
+                     </svg>
+                  </span>
+               </summary>
+               <p class="pb-6 pr-12 leading-relaxed text-subtle">{f.answer}</p>
+            </details>
+         ))}
+      </div>
+   </div>
+</section>

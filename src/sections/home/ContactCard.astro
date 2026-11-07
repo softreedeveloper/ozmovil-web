@@ -1,0 +1,181 @@
+---
+/**
+ * Tarjeta de contacto digital + generador de QR.
+ * - La tarjeta visual y el enlace "Guardar contacto" (/ozmobile.vcf) son HTML
+ *   de servidor: funcionan sin JavaScript.
+ * - El QR (vCard / WhatsApp / sitio / ubicación) es una isla React que se
+ *   hidrata solo cuando la sección entra en pantalla.
+ */
+import SectionHeading from '@components/ui/SectionHeading.astro';
+import Icon from '@components/ui/Icon.astro';
+import Logo from '@components/ui/Logo.astro';
+import ContactCardQR from '@components/islands/ContactCardQR.jsx';
+import { siteConfig, socialLinks, waLink, addressLine } from '@utils/config.js';
+import { buildVCard, vcardPath } from '@utils/vcard.js';
+
+const { site, contact, card, location } = siteConfig;
+const socials = socialLinks();
+const address = addressLine();
+const siteUrl = siteConfig.absoluteUrl('/');
+
+const qrOptions = [
+   {
+      key: 'vcard',
+      label: 'Contacto',
+      icon: 'user',
+      value: buildVCard({ compact: true }),
+      hint: 'Al escanearlo, el teléfono ofrece guardar a OzMobile en tus contactos.',
+   },
+   {
+      key: 'whatsapp',
+      label: 'WhatsApp',
+      icon: 'whatsapp',
+      value: waLink('card'),
+      hint: 'Abre un chat de WhatsApp con nosotros.',
+   },
+   { key: 'web', label: 'Sitio web', icon: 'globe', value: siteUrl, hint: 'Abre este sitio en el teléfono.' },
+   location.mapsUrl && {
+      key: 'maps',
+      label: 'Ubicación',
+      icon: 'pin',
+      value: location.mapsUrl,
+      hint: 'Abre la ubicación en Google Maps.',
+   },
+].filter(Boolean);
+
+const shareData = { title: site.name, text: `${site.name} · ${site.tagline}`, url: `${siteUrl}#tarjeta` };
+---
+
+<section id="tarjeta" class="section" aria-labelledby="tarjeta-title">
+   <div class="container">
+      <SectionHeading
+         id="tarjeta-title"
+         eyebrow="Tarjeta de contacto"
+         title="Guárdanos en tu celular"
+         lead="Escanea el código, descárgalo para compartirlo o guarda nuestra tarjeta directo en tus contactos."
+         align="center"
+      />
+
+      <div class="mx-auto mt-12 grid max-w-5xl gap-6 lg:grid-cols-2">
+         <!-- Tarjeta visual (sin JS) -->
+         <article
+            class="card spotlight relative flex flex-col overflow-hidden p-7 sm:p-9"
+            data-spotlight
+            data-reveal
+            aria-label={`Tarjeta de contacto de ${site.name}`}
+         >
+            <div
+               class="pointer-events-none absolute -right-24 -top-24 size-64 animate-blob rounded-full bg-accent/20 blur-3xl"
+               aria-hidden="true"
+            ></div>
+            <Logo size={56} tagline on="surface" class="relative" />
+
+            <ul class="mt-8 grid gap-4 text-[0.95rem]">
+               <li>
+                  <a
+                     href={`tel:${contact.phone}`}
+                     id="tel-tarjeta"
+                     data-placement="contenido"
+                     data-destination-type="phone"
+                     class="flex items-center gap-3 hover:text-accent"
+                  >
+                     <span class="grid size-10 place-items-center rounded-xl bg-muted">
+                        <Icon name="phone" size={18} />
+                     </span>
+                     {contact.phoneDisplay}
+                  </a>
+               </li>
+               <li>
+                  <a
+                     href={waLink('card')}
+                     id="wa-tarjeta"
+                     target="_blank"
+                     rel="noopener"
+                     data-placement="contenido"
+                     data-destination-type="whatsapp"
+                     class="flex items-center gap-3 hover:text-accent"
+                  >
+                     <span class="grid size-10 place-items-center rounded-xl bg-whatsapp/15 text-whatsapp-text">
+                        <Icon name="whatsapp" size={18} />
+                     </span>
+                     WhatsApp
+                  </a>
+               </li>
+               {contact.email && (
+                  <li>
+                     <a href={`mailto:${contact.email}`} class="flex items-center gap-3 hover:text-accent">
+                        <span class="grid size-10 place-items-center rounded-xl bg-muted">
+                           <Icon name="mail" size={18} />
+                        </span>
+                        {contact.email}
+                     </a>
+                  </li>
+               )}
+               <li class="flex items-center gap-3">
+                  <span class="grid size-10 place-items-center rounded-xl bg-muted">
+                     <Icon name="globe" size={18} />
+                  </span>
+                  {siteUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+               </li>
+               {address && (
+                  <li class="flex items-center gap-3">
+                     <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-muted">
+                        <Icon name="pin" size={18} />
+                     </span>
+                     {address}
+                  </li>
+               )}
+            </ul>
+
+            {socials.length > 0 && (
+               <ul class="mt-6 flex flex-wrap gap-2" aria-label="Redes sociales">
+                  {socials.map((s) => (
+                     <li>
+                        <a
+                           href={s.url}
+                           target="_blank"
+                           rel="noopener"
+                           class="inline-flex items-center gap-2 rounded-full border border-line px-3 py-1.5 text-sm hover:border-fg/30"
+                        >
+                           <Icon name={s.key} size={16} />
+                           {s.label}
+                        </a>
+                     </li>
+                  ))}
+               </ul>
+            )}
+
+            <div class="mt-auto pt-8">
+               <a
+                  id="vcf-tarjeta"
+                  href={vcardPath()}
+                  download={`${card.fileName}.vcf`}
+                  data-placement="contenido"
+                  data-destination-type="vcard"
+                  class="btn-primary w-full"
+               >
+                  <Icon name="download" size={18} />
+                  Guardar contacto
+               </a>
+            </div>
+         </article>
+
+         <!-- Generador de QR -->
+         <div class="card p-7 sm:p-9" data-reveal>
+            <ContactCardQR
+               client:visible
+               options={qrOptions}
+               share={shareData}
+               fileName={card.fileName}
+               vcard={buildVCard()}
+            />
+            <noscript>
+               <p class="text-sm text-subtle">
+                  Activa JavaScript para generar el código QR. Mientras, puedes guardar el contacto con el botón
+                  “Guardar contacto”.
+               </p>
+            </noscript>
+         </div>
+      </div>
+   </div>
+</section>

@@ -1,0 +1,34 @@
+---
+import SectionHeading from '@components/ui/SectionHeading.astro';
+import Icon from '@components/ui/Icon.astro';
+import { features } from '@constants/content.js';
+---
+
+<section class="section bg-surface" aria-labelledby="porque-title">
+   <div class="container grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+      <SectionHeading
+         id="porque-title"
+         eyebrow="Por qué OzMobile"
+         title="Un servicio técnico claro y de confianza"
+         lead="Reparar tu celular no debería ser complicado. Te explicamos todo antes y te entregamos el equipo probado."
+      />
+      <ul class="grid gap-4 sm:grid-cols-2">
+         {features.map((f, i) => (
+            <li
+               class="spotlight group rounded-3xl border border-line bg-bg p-6 transition duration-300 hover:-translate-y-1 hover:border-accent/40"
+               data-spotlight
+               data-reveal
+               style={`transition-delay:${i * 60}ms`}
+            >
+               <Icon
+                  name={f.icon}
+                  size={22}
+                  class="text-accent transition duration-500 group-hover:-rotate-6 group-hover:scale-125"
+               />
+               <h3 class="mt-4 font-semibold tracking-tight">{f.title}</h3>
+               <p class="mt-2 text-sm leading-relaxed text-subtle">{f.description}</p>
+            </li>
+         ))}
+      </ul>
+   </div>
+</section>

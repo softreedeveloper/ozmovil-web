@@ -1,0 +1,52 @@
+---
+import ContactButton from '@components/ui/ContactButton.astro';
+import Logo from '@components/ui/Logo.astro';
+import { siteConfig } from '@utils/config.js';
+---
+
+<section class="pb-20 sm:pb-section" aria-labelledby="cta-title">
+   <div class="container">
+      <!-- Bloque fijo azul → negro (igual en ambos temas). -->
+      <div
+         class="relative isolate overflow-hidden rounded-4xl bg-[linear-gradient(135deg,#0ea5ff_-10%,#0369a1_30%,#0b1f3b_70%,#050d1a_100%)] px-6 py-14 text-center text-white sm:px-12 sm:py-20"
+         data-reveal="scale"
+      >
+         <div class="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
+            <div class="absolute inset-0 opacity-30 [background-image:radial-gradient(rgb(255_255_255/0.25)_1px,transparent_1px)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]"></div>
+            <div class="absolute -left-20 -top-20 size-80 animate-blob rounded-full bg-[#0ea5ff]/40 blur-3xl"></div>
+            <div class="absolute -bottom-24 -right-10 size-96 animate-blob rounded-full bg-[#0ea5ff]/20 blur-3xl [animation-delay:-8s]"></div>
+         </div>
+
+         <!-- Isotipo como marca de agua (versión negativa). -->
+         <Logo
+            variant="isotype"
+            size={320}
+            on="navy"
+            class="pointer-events-none absolute -bottom-16 -right-16 -z-10 rotate-12 !text-white opacity-[0.07]"
+         />
+         <h2 id="cta-title" class="mx-auto max-w-2xl text-balance text-3xl font-semibold tracking-tight sm:text-5xl">
+            ¿Tu celular falló? Lo revisamos hoy.
+         </h2>
+         <p class="mx-auto mt-5 max-w-xl text-white/75">
+            Mándanos el modelo y qué le pasa. Te respondemos con un diagnóstico y una cotización.
+         </p>
+         <div class="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+            <ContactButton
+               id="wa-cta-final"
+               placement="contenido"
+               message="quote"
+               size="lg"
+               label="Cotizar por WhatsApp"
+            />
+            <ContactButton
+               id="tel-cta-final"
+               type="tel"
+               placement="contenido"
+               size="lg"
+               label={`Llamar ${siteConfig.contact.phoneDisplay}`}
+               class="!border-white/25 !bg-white/5 !text-white backdrop-blur hover:!border-white/60"
+            />
+         </div>
+      </div>
+   </div>
+</section>

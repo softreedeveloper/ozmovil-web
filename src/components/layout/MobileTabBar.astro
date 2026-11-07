@@ -1,0 +1,309 @@
+---
+/**
+ * Barra de pestañas inferior tipo app (solo < lg), inspirada en
+ * MobileBottomNav de movapp-web:
+ *
+ *  - `sticky bottom-0` y NO `fixed`: en iOS/Android "fixed" se ancla al layout
+ *    viewport, que se desincroniza un instante cuando el navegador anima su
+ *    barra de direcciones (la barra "salta"). "sticky" como ÚLTIMO elemento
+ *    del <body> se queda pegado al fondo sin ese desfase. Por eso este
+ *    componente va al final del Layout.
+ *  - Pestañas: Inicio · Servicios · [WhatsApp elevado] · Tarjeta · Menú.
+ *  - La pestaña activa sigue la sección visible (scroll-spy en el <script>).
+ *  - "Menú" abre una hoja inferior (<dialog> nativo: foco atrapado, Esc y
+ *    fondo inerte sin librerías). Sin JS las pestañas siguen siendo anclas.
+ */
+import Icon from '@components/ui/Icon.astro';
+import Logo from '@components/ui/Logo.astro';
+import ContactButton from '@components/ui/ContactButton.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import { navLinks } from '@constants/nav.js';
+import { siteConfig, waLink, socialLinks } from '@utils/config.js';
+
+const tabs = [
+   { href: '/#inicio', label: 'Inicio', icon: 'home', section: 'inicio' },
+   { href: '/#servicios', label: 'Servicios', icon: 'grid', section: 'servicios' },
+   null, // WhatsApp (centro)
+   { href: '/#tarjeta', label: 'Tarjeta', icon: 'qr', section: 'tarjeta' },
+];
+const socials = socialLinks();
+---
+
+<nav
+   id="mobile-tabbar"
+   aria-label="Navegación móvil"
+   class="sticky bottom-0 z-50 border-t border-line/80 bg-bg/85 pb-[env(safe-area-inset-bottom)] shadow-[0_-10px_30px_-18px_rgb(11_31_59/0.35)] backdrop-blur-xl supports-[backdrop-filter]:bg-bg/70 lg:hidden"
+>
+   <ul class="mx-auto grid h-16 max-w-md grid-cols-5 items-stretch px-2">
+      {tabs.map((t) =>
+         t ? (
+            <li>
+               <a href={t.href} data-tab={t.section} class="tab">
+                  <span class="tab-pill" aria-hidden="true" />
+                  <Icon name={t.icon} size={22} />
+                  <span class="tab-label">{t.label}</span>
+               </a>
+            </li>
+         ) : (
+            <li class="relative flex justify-center">
+               <a
+                  id="wa-tabbar"
+                  href={waLink('default')}
+                  target="_blank"
+                  rel="noopener"
+                  data-placement="sticky"
+                  data-destination-type="whatsapp"
+                  aria-label="Escríbenos por WhatsApp"
+                  class="absolute -top-5 grid size-[3.6rem] place-items-center rounded-full bg-whatsapp text-white shadow-[0_10px_24px_-6px_rgb(37_211_102/0.7)] ring-4 ring-bg transition active:scale-90"
+               >
+                  <span class="absolute inset-0 -z-10 animate-pulseRing rounded-full bg-whatsapp" aria-hidden="true" />
+                  <Icon name="whatsapp" size={28} />
+               </a>
+               <span class="tab-label mt-auto pb-1.5 text-whatsapp-text" aria-hidden="true">
+                  WhatsApp
+               </span>
+            </li>
+         ),
+      )}
+      <li>
+         <button type="button" class="tab w-full" data-sheet-open aria-haspopup="dialog" aria-controls="mobile-sheet">
+            <span class="tab-pill" aria-hidden="true"></span>
+            <Icon name="menu" size={22} />
+            <span class="tab-label">Menú</span>
+         </button>
+      </li>
+   </ul>
+</nav>
+
+<!-- Hoja inferior del menú -->
+<dialog
+   id="mobile-sheet"
+   aria-label="Menú"
+   class="sheet m-0 mt-auto max-h-[88dvh] w-full max-w-none overflow-y-auto rounded-t-[1.75rem] border-t border-line bg-surface p-0 text-fg lg:hidden"
+>
+   <div class="px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-3">
+      <div class="mx-auto h-1.5 w-12 rounded-full bg-line" aria-hidden="true"></div>
+
+      <div class="mt-4 flex items-center justify-between">
+         <Logo size={40} on="surface" />
+         <button
+            type="button"
+            data-sheet-close
+            class="grid size-10 place-items-center rounded-full bg-muted text-fg active:scale-90"
+            aria-label="Cerrar menú"
+         >
+            <Icon name="close" size={18} />
+         </button>
+      </div>
+
+      <ul class="mt-6 grid grid-cols-3 gap-2.5">
+         {navLinks.map((l) => (
+            <li>
+               <a
+                  href={l.href}
+                  data-sheet-link
+                  class="flex h-full flex-col items-center gap-2 rounded-2xl border border-line bg-bg px-2 py-4 text-center text-xs font-medium transition active:scale-95"
+               >
+                  <span class="grid size-10 place-items-center rounded-xl bg-accent-soft text-accent">
+                     <Icon name={l.icon} size={20} />
+                  </span>
+                  {l.label}
+               </a>
+            </li>
+         ))}
+      </ul>
+
+      <div class="mt-5 grid gap-2.5">
+         <ContactButton id="wa-menu-movil" placement="header" message="default" class="w-full" />
+         <ContactButton
+            id="tel-menu-movil"
+            type="tel"
+            placement="header"
+            label={`Llamar ${siteConfig.contact.phoneDisplay}`}
+            class="w-full"
+         />
+      </div>
+
+      <div class="mt-5 flex items-center justify-between rounded-2xl bg-muted px-4 py-3">
+         <span class="text-sm font-medium">Tema claro / oscuro</span>
+         <ThemeToggle id="theme-toggle-sheet" />
+      </div>
+
+      {socials.length > 0 && (
+         <ul class="mt-5 flex justify-center gap-2" aria-label="Redes sociales">
+            {socials.map((s) => (
+               <li>
+                  <a
+                     href={s.url}
+                     target="_blank"
+                     rel="noopener"
+                     class="grid size-11 place-items-center rounded-full border border-line"
+                     aria-label={s.label}
+                  >
+                     <Icon name={s.key} size={18} />
+                  </a>
+               </li>
+            ))}
+         </ul>
+      )}
+   </div>
+</dialog>
+
+<style>
+   .tab {
+      position: relative;
+      isolation: isolate;
+      display: flex;
+      height: 100%;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.2rem;
+      color: rgb(var(--subtle));
+      transition:
+         color 0.2s ease,
+         transform 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+   }
+   .tab:active {
+      transform: scale(0.9);
+   }
+   .tab-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1;
+      letter-spacing: 0.01em;
+   }
+   /* Píldora indicadora de la pestaña activa. */
+   .tab-pill {
+      position: absolute;
+      top: 0.45rem;
+      left: 50%;
+      height: 2rem;
+      width: 3.4rem;
+      translate: -50% 0;
+      scale: 0.6;
+      opacity: 0;
+      border-radius: 999px;
+      background: rgb(var(--accent-soft));
+      z-index: -1;
+      transition:
+         scale 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+         opacity 0.25s ease;
+   }
+   .tab.is-active {
+      color: rgb(var(--accent));
+   }
+   .tab.is-active .tab-pill {
+      scale: 1;
+      opacity: 1;
+   }
+
+   /* Hoja inferior: entra deslizando desde abajo. */
+   .sheet[open] {
+      animation: sheetUp 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+   }
+   .sheet.is-closing {
+      animation: sheetDown 0.25s ease-in forwards;
+   }
+   .sheet::backdrop {
+      background: rgb(5 13 26 / 0.45);
+      backdrop-filter: blur(4px);
+      animation: fade 0.3s ease;
+   }
+   @keyframes sheetUp {
+      from {
+         transform: translateY(100%);
+      }
+   }
+   @keyframes sheetDown {
+      to {
+         transform: translateY(100%);
+      }
+   }
+   @keyframes fade {
+      from {
+         opacity: 0;
+      }
+   }
+   @media (prefers-reduced-motion: reduce) {
+      .sheet[open],
+      .sheet.is-closing,
+      .sheet::backdrop {
+         animation: none;
+      }
+   }
+</style>
+
+<script>
+   // --- Hoja inferior ------------------------------------------------------------
+   const sheet = document.getElementById('mobile-sheet') as HTMLDialogElement | null;
+   const close = () => {
+      if (!sheet?.open) return;
+      sheet.classList.add('is-closing');
+      sheet.addEventListener(
+         'animationend',
+         () => {
+            sheet.classList.remove('is-closing');
+            sheet.close();
+         },
+         { once: true },
+      );
+   };
+   document.querySelector('[data-sheet-open]')?.addEventListener('click', () => sheet?.showModal());
+   sheet?.querySelector('[data-sheet-close]')?.addEventListener('click', close);
+   // Tocar el fondo (fuera del contenido) cierra.
+   sheet?.addEventListener('click', (e) => {
+      if (e.target === sheet) close();
+   });
+   // Al elegir una sección: cerrar y dejar que el ancla haga scroll.
+   sheet?.querySelectorAll<HTMLAnchorElement>('[data-sheet-link]').forEach((a) =>
+      a.addEventListener('click', () => {
+         sheet.close();
+      }),
+   );
+   // Esc nativo → usar la animación de salida.
+   sheet?.addEventListener('cancel', (e) => {
+      e.preventDefault();
+      close();
+   });
+
+   // --- Pestaña activa según la sección visible (scroll-spy) ---------------------
+   const tabs = [...document.querySelectorAll<HTMLAnchorElement>('#mobile-tabbar [data-tab]')];
+   const setActive = (id: string) => {
+      tabs.forEach((t) => {
+         const on = t.dataset.tab === id;
+         t.classList.toggle('is-active', on);
+         if (on) t.setAttribute('aria-current', 'location');
+         else t.removeAttribute('aria-current');
+      });
+   };
+   // Secciones que activan cada pestaña (el resto deja "Inicio" solo arriba del todo).
+   const map: Record<string, string> = {
+      inicio: 'inicio',
+      servicios: 'servicios',
+      proceso: 'servicios',
+      tarjeta: 'tarjeta',
+   };
+   const sections = Object.keys(map)
+      .map((id) => document.getElementById(id))
+      .filter(Boolean) as HTMLElement[];
+   const visible = new Map<string, number>();
+   const spy = new IntersectionObserver(
+      (entries) => {
+         entries.forEach((en) => visible.set(en.target.id, en.isIntersecting ? en.intersectionRatio : 0));
+         let best = '';
+         let max = 0;
+         visible.forEach((r, id) => {
+            if (r > max) {
+               max = r;
+               best = id;
+            }
+         });
+         setActive(best ? map[best] : '');
+      },
+      { threshold: [0, 0.15, 0.35, 0.6], rootMargin: '-10% 0px -35% 0px' },
+   );
+   sections.forEach((s) => spy.observe(s));
+   setActive('inicio');
+</script>

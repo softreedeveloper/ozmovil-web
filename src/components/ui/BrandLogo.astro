@@ -1,0 +1,44 @@
+---
+/**
+ * Logo de marca en SVG inline (simple-icons, CC0), recortado a su contorno y
+ * escalado para caber en una caja de `size` de alto × `size * maxRatio` de
+ * ancho: isotipos y logotipos de texto quedan visualmente equilibrados.
+ * Monocromo (currentColor) para seguir el tema.
+ */
+import { brandIcon } from '@utils/brand-icons.js';
+
+interface Props {
+   icon: string;
+   label: string;
+   size?: number;
+   maxRatio?: number;
+   class?: string;
+}
+
+const { icon, label, size = 28, maxRatio = 2.8, class: className = '' } = Astro.props;
+const data = brandIcon(icon);
+let width = size;
+let height = size;
+if (data) {
+   const scale = Math.min((size * maxRatio) / data.aspect, size);
+   height = Math.round(scale);
+   width = Math.round(scale * data.aspect);
+}
+---
+
+{data ? (
+   <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox={data.viewBox}
+      width={width}
+      height={height}
+      fill="currentColor"
+      role="img"
+      aria-label={label}
+      class={`shrink-0 ${className}`}
+   >
+      <path d={data.path} />
+   </svg>
+) : (
+   <span class={className}>{label}</span>
+)}

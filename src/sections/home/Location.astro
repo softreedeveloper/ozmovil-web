@@ -1,0 +1,125 @@
+---
+/**
+ * Cada bloque aparece solo si su dato existe en site-config.js
+ * (address, openingHours, location.mapsUrl / mapEmbedUrl).
+ */
+import SectionHeading from '@components/ui/SectionHeading.astro';
+import ContactButton from '@components/ui/ContactButton.astro';
+import Icon from '@components/ui/Icon.astro';
+import { siteConfig, addressLine, openingHoursDisplay } from '@utils/config.js';
+
+const address = addressLine();
+const hours = openingHoursDisplay();
+const { mapsUrl, mapEmbedUrl } = siteConfig.location;
+const area = siteConfig.business.areaServed;
+---
+
+<section id="ubicacion" class="section bg-surface" aria-labelledby="ubicacion-title">
+   <div class="container grid gap-10 lg:grid-cols-2 lg:items-stretch">
+      <div class="flex flex-col">
+         <SectionHeading
+            id="ubicacion-title"
+            eyebrow="Ubicación"
+            title="Visítanos o escríbenos"
+            lead={
+               address
+                  ? 'Trae tu equipo para un diagnóstico o mándanos un mensaje antes para apartar tu lugar.'
+                  : `Atendemos en ${area}. Escríbenos y te compartimos la ubicación y el horario del día.`
+            }
+         />
+
+         <dl class="mt-10 grid gap-6" data-reveal>
+            {address && (
+               <div class="flex gap-4">
+                  <dt class="grid size-11 shrink-0 place-items-center rounded-2xl bg-accent-soft text-accent">
+                     <Icon name="pin" size={20} />
+                     <span class="sr-only">Dirección</span>
+                  </dt>
+                  <dd class="pt-2.5">{address}</dd>
+               </div>
+            )}
+            {hours.length > 0 && (
+               <div class="flex gap-4">
+                  <dt class="grid size-11 shrink-0 place-items-center rounded-2xl bg-accent-soft text-accent">
+                     <Icon name="clock" size={20} />
+                     <span class="sr-only">Horario</span>
+                  </dt>
+                  <dd class="grid gap-1 pt-2.5">
+                     {hours.map((h) => (
+                        <span class="flex justify-between gap-6">
+                           <span class="text-subtle">{h.label}</span>
+                           <span class="font-medium tabular-nums">{h.time}</span>
+                        </span>
+                     ))}
+                  </dd>
+               </div>
+            )}
+            <div class="flex gap-4">
+               <dt class="grid size-11 shrink-0 place-items-center rounded-2xl bg-accent-soft text-accent">
+                  <Icon name="phone" size={20} />
+                  <span class="sr-only">Teléfono y WhatsApp</span>
+               </dt>
+               <dd class="pt-2.5">
+                  <a
+                     href={`tel:${siteConfig.contact.phone}`}
+                     id="tel-ubicacion"
+                     data-placement="contenido"
+                     data-destination-type="phone"
+                     class="font-medium hover:text-accent"
+                  >
+                     {siteConfig.contact.phoneDisplay}
+                  </a>
+                  <span class="block text-sm text-subtle">Llamadas y WhatsApp</span>
+               </dd>
+            </div>
+         </dl>
+
+         <div class="mt-10 flex flex-col gap-3 sm:flex-row" data-reveal>
+            <ContactButton
+               id="wa-ubicacion"
+               placement="contenido"
+               message="location"
+               label="Pedir ubicación por WhatsApp"
+            />
+            {mapsUrl && (
+               <a
+                  id="mapa-como-llegar"
+                  href={mapsUrl}
+                  target="_blank"
+                  rel="noopener"
+                  data-placement="contenido"
+                  data-destination-type="maps"
+                  class="btn-ghost"
+               >
+                  <Icon name="pin" size={18} />
+                  Cómo llegar
+               </a>
+            )}
+         </div>
+      </div>
+
+      <div class="card relative min-h-[20rem] overflow-hidden" data-reveal>
+         {mapEmbedUrl ? (
+            <iframe
+               src={mapEmbedUrl}
+               title={`Mapa de ubicación de ${siteConfig.site.name}`}
+               class="absolute inset-0 size-full border-0 dark:[filter:invert(0.9)_hue-rotate(180deg)]"
+               loading="lazy"
+               referrerpolicy="no-referrer-when-downgrade"
+               allowfullscreen
+            />
+         ) : (
+            <div class="absolute inset-0 grid place-items-center p-8 text-center" aria-hidden="true">
+               <div class="absolute inset-0 opacity-60 [background-image:radial-gradient(rgb(var(--line))_1.2px,transparent_1.2px)] [background-size:18px_18px]" />
+               <div class="relative">
+                  <span class="mx-auto grid size-16 place-items-center rounded-full bg-accent text-accent-fg shadow-glow">
+                     <Icon name="pin" size={28} />
+                  </span>
+                  <p class="mt-5 text-lg font-semibold">{area}</p>
+                  <p class="mt-1 text-sm text-subtle">Ubicación exacta por WhatsApp</p>
+               </div>
+            </div>
+         )}
+      </div>
+   </div>
+</section>

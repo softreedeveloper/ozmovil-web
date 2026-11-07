@@ -1,0 +1,25 @@
+---
+/**
+ * Alterna claro/oscuro. El tema inicial lo aplica el script inline del <head>
+ * (Layout.astro); este botón solo cambia y persiste la elección. Si el usuario
+ * nunca eligió, se sigue el tema del sistema.
+ */
+import Icon from '@components/ui/Icon.astro';
+interface Props {
+   id: string;
+   class?: string;
+}
+const { id, class: className = '' } = Astro.props;
+---
+
+<button
+   type="button"
+   id={id}
+   data-theme-toggle
+   class={`grid size-10 place-items-center rounded-full border border-line bg-surface text-fg transition hover:border-fg/30 ${className}`}
+   aria-label="Cambiar a tema oscuro"
+   aria-pressed="false"
+>
+   <Icon name="moon" size={18} class="dark:hidden" />
+   <Icon name="sun" size={18} class="hidden dark:block" />
+</button>

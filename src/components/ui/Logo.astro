@@ -1,0 +1,88 @@
+---
+/**
+ * Logotipo OzMobile (manual de marca). Geometría en src/utils/brand-mark.js.
+ *
+ * variant:
+ *   horizontal  isotipo + "OzMobile" (+ tagline opcional)       ← header, footer
+ *   vertical    isotipo arriba, nombre y tagline abajo           ← tarjeta, 404
+ *   isotype     solo el símbolo
+ *   app         isotipo simplificado (cuadro azul + herramientas)
+ *
+ * Versión negativa automática: el teléfono, las herramientas y "Mobile" usan
+ * el color de texto del tema (azul marino en claro, blanco en oscuro); la
+ * órbita y "Oz" siempre en el azul primario #0EA5FF. El interior del teléfono
+ * toma el color del fondo sobre el que va (`on`).
+ */
+import { siteConfig } from '@utils/config.js';
+import { BRAND, isotypeSvgInner, appIconSvg } from '@utils/brand-mark.js';
+
+interface Props {
+   variant?: 'horizontal' | 'vertical' | 'isotype' | 'app';
+   tagline?: boolean;
+   /** Alto del isotipo en px. */
+   size?: number;
+   /** Fondo bajo el logo (rellena el interior del teléfono). */
+   on?: 'bg' | 'surface' | 'navy';
+   class?: string;
+}
+
+const { variant = 'horizontal', tagline = false, size = 40, on = 'bg', class: className = '' } = Astro.props;
+const fill = { bg: 'rgb(var(--bg))', surface: 'rgb(var(--surface))', navy: BRAND.secondary }[on];
+const iso = isotypeSvgInner({ ink: 'currentColor', orbit: BRAND.primary, fill });
+const app = appIconSvg({ size })
+   .replace(/id="oz-g"/, 'id="oz-g-logo"')
+   .replace(/url\(#oz-g\)/, 'url(#oz-g-logo)');
+const { name, tagline: taglineText } = siteConfig.site;
+// "OzMobile" → "Oz" en azul + resto en color de texto.
+const head = name.slice(0, 2);
+const rest = name.slice(2);
+const vertical = variant === 'vertical';
+// Tagline en dos líneas, como en el manual de marca.
+const words = taglineText.split(' ');
+const cut = Math.ceil(words.length / 2);
+const taglineLines = [words.slice(0, cut).join(' '), words.slice(cut).join(' ')];
+---
+
+{variant === 'app' ? (
+   <span class={`inline-block ${className}`} aria-hidden="true" set:html={app} />
+) : (
+   <span
+      class:list={['inline-flex text-fg', vertical ? 'flex-col items-center text-center' : 'items-center', className]}
+   >
+      <svg
+         xmlns="http://www.w3.org/2000/svg"
+         viewBox="0 0 120 120"
+         width={size}
+         height={size}
+         aria-hidden="true"
+         class="shrink-0 overflow-visible"
+         set:html={iso}
+      />
+      {variant !== 'isotype' && (
+         <span class:list={['flex flex-col', vertical ? 'mt-2 items-center' : 'ml-1.5']}>
+            <span
+               class="font-display font-extrabold leading-none tracking-[-0.035em]"
+               style={`font-size:${Math.round(size * (vertical ? 0.62 : 0.6))}px`}
+            >
+               <span class="text-brand">{head}</span>
+               {rest}
+            </span>
+            {tagline && (
+               <span
+                  class="mt-2 flex items-center gap-2 font-display font-semibold uppercase leading-[1.35] tracking-[0.16em] text-fg/80"
+                  style={`font-size:${Math.max(8, Math.round(size * 0.16))}px`}
+               >
+                  <span class="h-0.5 w-4 shrink-0 rounded-full bg-brand" aria-hidden="true" />
+                  <span class="flex flex-col items-center text-center">
+                     {taglineLines.map((l) => (
+                        <span class="whitespace-nowrap">{l}</span>
+                     ))}
+                  </span>
+                  <span class="h-0.5 w-4 shrink-0 rounded-full bg-brand" aria-hidden="true" />
+               </span>
+            )}
+         </span>
+      )}
+      {variant === 'isotype' && <span class="sr-only">{name}</span>}
+   </span>
+)}

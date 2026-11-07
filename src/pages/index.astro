@@ -1,0 +1,34 @@
+---
+/**
+ * Landing única. Title, description y canonical salen del registro SEO
+ * (src/utils/seo/registry.js); aquí solo se aportan los nodos de Schema
+ * propios de la página (FAQPage), construidos desde la misma constante que
+ * pinta el acordeón.
+ */
+import Layout from '@layouts/Layout.astro';
+import Hero from '@sections/home/Hero.astro';
+import Brands from '@sections/home/Brands.astro';
+import Services from '@sections/home/Services.astro';
+import Process from '@sections/home/Process.astro';
+import WhyUs from '@sections/home/WhyUs.astro';
+import Location from '@sections/home/Location.astro';
+import ContactCard from '@sections/home/ContactCard.astro';
+import Faq from '@sections/home/Faq.astro';
+import CtaFinal from '@sections/home/CtaFinal.astro';
+import { buildFAQPage } from '@utils/seo/schema/nodes.js';
+import { faqs } from '@constants/content.js';
+
+const schema = [buildFAQPage({ slug: '/', faqs })];
+---
+
+<Layout schema={schema}>
+   <Hero />
+   <Brands />
+   <Services />
+   <Process />
+   <WhyUs />
+   <Location />
+   <ContactCard />
+   <Faq />
+   <CtaFinal />
+</Layout>

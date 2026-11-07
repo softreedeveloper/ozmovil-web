@@ -1,0 +1,22 @@
+---
+import Layout from '@layouts/Layout.astro';
+import ContactButton from '@components/ui/ContactButton.astro';
+import Logo from '@components/ui/Logo.astro';
+---
+
+<Layout noIndex>
+   <section class="container grid min-h-[70dvh] place-items-center py-24 text-center">
+      <div>
+         <Logo variant="vertical" size={110} tagline />
+         <p class="mt-10 font-mono text-sm font-semibold text-accent">Error 404</p>
+         <h1 class="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">Página no encontrada</h1>
+         <p class="lead mx-auto mt-4 max-w-md">La página que buscas no existe o cambió de dirección.</p>
+         <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <a href="/" class="btn-primary">
+               Volver al inicio
+            </a>
+            <ContactButton id="wa-404" placement="contenido" message="default" />
+         </div>
+      </div>
+   </section>
+</Layout>
